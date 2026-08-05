@@ -2,7 +2,8 @@
 # cryo-ao Base Image
 # ===========================
 
-FROM ubuntu:24.04
+FROM ubuntu:24.04 
+# or FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
 
 LABEL maintainer="Anchieta Oliveira"
 LABEL description="Cryo-EM environment with Micromamba"
