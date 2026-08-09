@@ -64,6 +64,23 @@ RUN eval "$(/opt/conda/bin/conda shell.bash hook)" && \
     conda activate scipion3 && \
     /opt/scipion3/scipion3 install -p scipion-em-xmipp
 
+# Instala o plugin do imod
 RUN eval "$(/opt/conda/bin/conda shell.bash hook)" && \
     conda activate scipion3 && \
     /opt/scipion3/scipion3 install -p scipion-em-imod
+
+# Instala o plugin do Relion
+RUN eval "$(/opt/conda/bin/conda shell.bash hook)" && \
+    conda activate scipion3 && \
+    /opt/scipion3/scipion3 install -p scipion-em-relion
+
+# Instala o plugin do SPHIRE
+RUN eval "$(/opt/conda/bin/conda shell.bash hook)" && \
+    conda activate scipion3 && \
+    /opt/scipion3/scipion3 install -p scipion-em-sphire
+
+# Instala o plugin do MotionCor2
+RUN eval "$(/opt/conda/bin/conda shell.bash hook)" && \
+    conda activate scipion3 && \
+    /opt/scipion3/scipion3 install -p scipion-em-motioncorr
+
