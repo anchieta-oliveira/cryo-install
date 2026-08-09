@@ -2,8 +2,9 @@
 # cryo-ao Base Image
 # ===========================
 
-FROM ubuntu:24.04 
-# or FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
+#FROM ubuntu:24.04
+#FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
+FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 
 LABEL maintainer="Anchieta Oliveira"
 LABEL description="Cryo-EM environment with Micromamba"
@@ -49,7 +50,6 @@ RUN micromamba create -y -n warp \
     -c conda-forge
   
 RUN  micromamba run -n warp micromamba update warp -c warpem -c nvidia/label/cuda-11.8.0 -c pytorch -c conda-forge --all --yes
-RUN  micromamba run -n warp pip install warpylib
 
 RUN micromamba create -n miss-alignment -c conda-forge python=3.12 cuda-toolkit=12.9 -y
 
@@ -57,3 +57,16 @@ RUN  micromamba run -n miss-alignment python -m pip install torch==2.8.0
 RUN  micromamba run -n miss-alignment python -m pip install torch-projectors --index-url https://warpem.github.io/torch-projectors/cu129/simple/
 RUN  micromamba run -n miss-alignment python -m pip install miss-alignment
 RUN micromamba clean --all --yes
+
+RUN micromamba create -y -n dtp python=3.12 pip -y
+
+
+RUN micromamba shell init -s bash
+ENV PATH="/data/kildare_miranda/anchieta/AreTomo3:${PATH}"
+
+
+RUN apt-get update \
+    && apt-cache policy libtiff6 libtiff-dev \
+    && apt-cache search libtiff
+
+RUN apt-get install -y libtiff6
