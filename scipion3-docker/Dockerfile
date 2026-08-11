@@ -84,3 +84,7 @@ RUN eval "$(/opt/conda/bin/conda shell.bash hook)" && \
     conda activate scipion3 && \
     /opt/scipion3/scipion3 install -p scipion-em-motioncorr
 
+    # Instala o plugin do CisTEM
+RUN eval "$(/opt/conda/bin/conda shell.bash hook)" && \
+    conda activate scipion3 && \
+    /opt/scipion3/scipion3 install -p scipion-em-cistem
