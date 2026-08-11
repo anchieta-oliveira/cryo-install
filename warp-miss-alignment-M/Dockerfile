@@ -63,6 +63,12 @@ RUN micromamba create -y -n dtp python=3.12 pip -y
 
 RUN micromamba shell init -s bash
 
+RUN apt-get update \
+    && apt-cache policy libtiff6 libtiff-dev \
+    && apt-cache search libtiff
+
+RUN apt-get install -y libtiff6
+
 # ===========================
 # AreTomo3
 # ===========================
@@ -84,15 +90,6 @@ ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 # Build AreTomo3
 RUN make exe -f makefile11 CUDAHOME=/usr/local/cuda
 
-# ===========================
-# Final
-# ===========================
-
 RUN ls -lh /opt/AreTomo3
 
 WORKDIR /opt
-RUN apt-get update \
-    && apt-cache policy libtiff6 libtiff-dev \
-    && apt-cache search libtiff
-
-RUN apt-get install -y libtiff6
