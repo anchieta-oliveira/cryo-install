@@ -9,10 +9,10 @@ FROM nvidia/cuda:12.8.1-cudnn-devel-ubuntu24.04
 LABEL maintainer="Anchieta Oliveira"
 LABEL description="Cryo-EM environment with Micromamba"
 
-# Evita perguntas durante a instalação
+# No interactive installation
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Atualiza o sistema e instala ferramentas básicas
+# Apps base
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
@@ -69,19 +69,19 @@ RUN micromamba shell init -s bash
 RUN nvcc --version && \
     echo "CUDAHOME=${CUDAHOME}" && \
     ls -la /usr/local/cuda
-    
+
 WORKDIR /opt
 
 RUN git clone https://github.com/czimaginginstitute/AreTomo3.git
 
 WORKDIR /opt/AreTomo3
 
-# CUDA usado pelo compilador
+# CUDA utilities
 ENV CUDAHOME=/usr/local/cuda
 ENV PATH="/opt/AreTomo3:/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 
-# Compila AreTomo3
+# Build AreTomo3
 RUN make exe -f makefile11 CUDAHOME=/usr/local/cuda
 
 # ===========================
