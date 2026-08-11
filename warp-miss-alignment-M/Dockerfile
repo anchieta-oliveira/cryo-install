@@ -62,9 +62,35 @@ RUN micromamba create -y -n dtp python=3.12 pip -y
 
 
 RUN micromamba shell init -s bash
-ENV PATH="/data/kildare_miranda/anchieta/AreTomo3:${PATH}"
 
+# ===========================
+# AreTomo3
+# ===========================
+RUN nvcc --version && \
+    echo "CUDAHOME=${CUDAHOME}" && \
+    ls -la /usr/local/cuda
+    
+WORKDIR /opt
 
+RUN git clone https://github.com/czimaginginstitute/AreTomo3.git
+
+WORKDIR /opt/AreTomo3
+
+# CUDA usado pelo compilador
+ENV CUDAHOME=/usr/local/cuda
+ENV PATH="/opt/AreTomo3:/usr/local/cuda/bin:${PATH}"
+ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
+
+# Compila AreTomo3
+RUN make exe -f makefile11 CUDAHOME=/usr/local/cuda
+
+# ===========================
+# Final
+# ===========================
+
+RUN ls -lh /opt/AreTomo3
+
+WORKDIR /opt
 RUN apt-get update \
     && apt-cache policy libtiff6 libtiff-dev \
     && apt-cache search libtiff
