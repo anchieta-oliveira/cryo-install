@@ -13,7 +13,7 @@ LABEL description="Cryo-EM environment with Micromamba"
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Apps base
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     wget \
     curl \
     git \
@@ -25,6 +25,7 @@ RUN apt-get update && apt-get install -y \
     unzip \
     tar \
     sudo \
+    libtiff-dev \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
@@ -39,7 +40,7 @@ RUN mkdir -p /opt/micromamba && \
     curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | \
     tar -xvj -C /opt/micromamba
 
-RUN find /opt/micromamba
+
 ENV PATH="/opt/micromamba/bin:${PATH}"
 
 RUN micromamba create -y -n warp \
@@ -63,12 +64,6 @@ RUN micromamba create -y -n dtp python=3.12 pip -y
 
 RUN micromamba shell init -s bash
 
-RUN apt-get update \
-    && apt-cache policy libtiff6 libtiff-dev \
-    && apt-cache search libtiff
-
-RUN apt-get install -y libtiff6
-
 # ===========================
 # AreTomo3
 # ===========================
@@ -88,7 +83,9 @@ ENV PATH="/opt/AreTomo3:/usr/local/cuda/bin:${PATH}"
 ENV LD_LIBRARY_PATH="/usr/local/cuda/lib64:${LD_LIBRARY_PATH}"
 
 # Build AreTomo3
-RUN make exe -f makefile11 CUDAHOME=/usr/local/cuda
+RUN sed -i 's/@$(NVCC) -g -G -m64 $(OBJS)/@$(NVCC) -g -G -m64 -Xcompiler -no-pie $(OBJS)/' makefile12 \
+    && make clean -f makefile12 \
+    && make exe -f makefile12 CUDAHOME=/usr/local/cuda
 
 RUN ls -lh /opt/AreTomo3
 
