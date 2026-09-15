@@ -1,4 +1,4 @@
-# cryo-ao Base Image
+# Scipion Base Image
 # ===========================
 FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
 
@@ -32,6 +32,14 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     libhdf5-dev \
     libtiff-dev \
+    xfce4 \
+    xfce4-terminal \
+    tigervnc-standalone-server \
+    tigervnc-common \
+    novnc \
+    websockify \
+    dbus-x11 \
+    x11-xserver-utils \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -88,3 +96,50 @@ RUN eval "$(/opt/conda/bin/conda shell.bash hook)" && \
 RUN eval "$(/opt/conda/bin/conda shell.bash hook)" && \
     conda activate scipion3 && \
     /opt/scipion3/scipion3 install -p scipion-em-cistem
+
+    RUN mkdir -p /root/.vnc
+
+RUN printf '#!/bin/bash\n\
+unset SESSION_MANAGER\n\
+unset DBUS_SESSION_BUS_ADDRESS\n\
+startxfce4 &\n' > /root/.vnc/xstartup && \
+    chmod +x /root/.vnc/xstartup
+
+RUN printf '#!/bin/bash\n\
+set -e\n\
+\n\
+mkdir -p /root/.vnc\n\
+\n\
+if [ -n "$VNC_PASSWORD" ]; then\n\
+    echo "$VNC_PASSWORD" | vncpasswd -f > /root/.vnc/passwd\n\
+    chmod 600 /root/.vnc/passwd\n\
+fi\n\
+\n\
+rm -f /tmp/.X1-lock\n\
+rm -rf /tmp/.X11-unix/X1\n\
+\n\
+vncserver :1 \\\n\
+    -geometry ${VNC_GEOMETRY:-1920x1080} \\\n\
+    -depth 24 \\\n\
+    -localhost no\n\
+\n\
+websockify --web=/usr/share/novnc/ ${NOVNC_PORT:-6080} localhost:5901\n\
+' > /usr/local/bin/start-vnc.sh && \
+chmod +x /usr/local/bin/start-vnc.sh
+
+EXPOSE 6080
+EXPOSE 5901
+
+CMD ["/usr/local/bin/start-vnc.sh"]
+
+
+RUN mkdir -p /root/Desktop && \
+    printf '[Desktop Entry]\n\
+Version=1.0\n\
+Type=Application\n\
+Name=Scipion\n\
+Comment=Scipion Cryo-EM\n\
+Exec=/opt/scipion3/scipion3\n\
+Terminal=false\n\
+Icon=utilities-terminal\n' > /root/Desktop/scipion.desktop && \
+    chmod +x /root/Desktop/scipion.desktop
