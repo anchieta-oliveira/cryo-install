@@ -13,7 +13,7 @@ Imagem Docker com **Scipion + CUDA + noVNC** para acesso gráfico pelo navegador
 Na pasta onde está o `Dockerfile`:
 
 ```bash
-docker build -t scipion .
+docker build --network=host --progress=plain -t scipion .
 ```
 
 ## Executar
